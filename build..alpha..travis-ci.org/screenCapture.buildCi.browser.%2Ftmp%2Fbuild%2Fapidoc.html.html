@@ -1,4 +1,4 @@
-<div class="apidocDiv">
+<html><head></head><body><div class="apidocDiv">
 <style>
 /*csslint
 */
@@ -47,17 +47,10 @@
 }
 </style>
 <h1>api documentation for
-    <a
-
-        href="https://github.com/dsanel/mongoose-delete"
-
-    >mongoose-delete (v0.3.4)</a>
+    <a href="https://github.com/dsanel/mongoose-delete">mongoose-delete (v0.3.4)</a>
 </h1>
 <h4>Mongoose soft delete plugin</h4>
-<div class="apidocSectionDiv"><a
-    href="#apidoc.tableOfContents"
-    id="apidoc.tableOfContents"
-><h1>table of contents</h1></a><ol>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
 
     <li class="apidocModuleLi"><a href="#apidoc.module.mongoose-delete">module mongoose-delete</a><ol>
 
@@ -105,7 +98,7 @@
         schema.add({ deletedBy: { type: Schema.Types.ObjectId, index: indexFields.deletedBy }});
     }
 
-    schema.pre(&#x27;save&#x27;, function (next) {
+    schema.pre('save', function (next) {
         if (!this.deleted) {
             this.deleted = false;
         }
@@ -114,54 +107,54 @@
 
     if (options.overrideMethods) {
         var overrideItems = options.overrideMethods;
-        var overridableMethods = [&#x27;count&#x27;, &#x27;find&#x27;, &#x27;findOne&#x27;, &#x27;findOneAndUpdate&#x27;, &#x27;update&#x27;];
+        var overridableMethods = ['count', 'find', 'findOne', 'findOneAndUpdate', 'update'];
         var finalList = [];
 
-        if ((typeof overrideItems === &#x27;string&#x27; || overrideItems instanceof String) &#x26;&#x26; overrideItems === &#x27;all&#x27;) {
+        if ((typeof overrideItems === 'string' || overrideItems instanceof String) &amp;&amp; overrideItems === 'all') {
             finalList = overridableMethods;
         }
 
-        if (typeof(overrideItems) === &#x22;boolean&#x22; &#x26;&#x26; overrideItems === true) {
+        if (typeof(overrideItems) === "boolean" &amp;&amp; overrideItems === true) {
             finalList = overridableMethods;
         }
 
         if (Array.isArray(overrideItems)) {
             overrideItems.forEach(function(method) {
-                if (overridableMethods.indexOf(method) &#x3e; -1) {
+                if (overridableMethods.indexOf(method) &gt; -1) {
                     finalList.push(method);
                 }
             });
         }
 
         finalList.forEach(function(method) {
-            if (method === &#x27;count&#x27; || method === &#x27;find&#x27; || method === &#x27;findOne&#x27;) {
+            if (method === 'count' || method === 'find' || method === 'findOne') {
                 schema.statics[method] = function () {
-                    return Model[method].apply(this, arguments).where(&#x27;deleted&#x27;).ne(true);
+                    return Model[method].apply(this, arguments).where('deleted').ne(true);
                 };
-                schema.statics[method + &#x27;Deleted&#x27;] = function () {
-                    return Model[method].apply(this, arguments).where(&#x27;deleted&#x27;).ne(false);
+                schema.statics[method + 'Deleted'] = function () {
+                    return Model[method].apply(this, arguments).where('deleted').ne(false);
                 };
-                schema.statics[method + &#x27;WithDeleted&#x27;] = function () {
+                schema.statics[method + 'WithDeleted'] = function () {
                     return Model[method].apply(this, arguments);
                 };
             } else {
                 schema.statics[method] = function () {
                     var args = parseUpdateArguments.apply(undefined, arguments);
 
-                    args[0].deleted = {&#x27;$ne&#x27;: true};
+                    args[0].deleted = {'$ne': true};
 
                     return Model[method].apply(this, args);
                 };
 
-                schema.statics[method + &#x27;Deleted&#x27;] = function () {
+                schema.statics[method + 'Deleted'] = function () {
                     var args = parseUpdateArguments.apply(undefined, arguments);
 
-                    args[0].deleted = {&#x27;$ne&#x27;: false};
+                    args[0].deleted = {'$ne': false};
 
                     return Model[method].apply(this, args);
                 };
 
-                schema.statics[method + &#x27;WithDeleted&#x27;] = function () {
+                schema.statics[method + 'WithDeleted'] = function () {
                     return Model[method].apply(this, arguments);
                 };
             }
@@ -169,16 +162,16 @@
     }
 
     schema.methods.delete = function (deletedBy, cb) {
-        var callback = typeof deletedBy === &#x27;function&#x27; ? deletedBy : cb,
+        var callback = typeof deletedBy === 'function' ? deletedBy : cb,
             deletedBy = cb !== undefined ? deletedBy : null;
 
         this.deleted = true;
 
-        if (schema.path(&#x27;deletedAt&#x27;)) {
+        if (schema.path('deletedAt')) {
             this.deletedAt = new Date();
         }
 
-        if (schema.path(&#x27;deletedBy&#x27;)) {
+        if (schema.path('deletedBy')) {
             this.deletedBy = deletedBy;
         }
 
@@ -190,11 +183,11 @@
     };
 
     schema.statics.delete =  function (conditions, deletedBy, callback) {
-        if (typeof deletedBy === &#x27;function&#x27;) {
+        if (typeof deletedBy === 'function') {
             callback = deletedBy;
             conditions = conditions;
             deletedBy = null;
-        } else if (typeof conditions === &#x27;function&#x27;) {
+        } else if (typeof conditions === 'function') {
             callback = conditions;
             conditions = {};
             deletedBy = null;
@@ -204,11 +197,11 @@
             deleted: true
         };
 
-        if (schema.path(&#x27;deletedAt&#x27;)) {
+        if (schema.path('deletedAt')) {
             doc.deletedAt = new Date();
         }
 
-        if (schema.path(&#x27;deletedBy&#x27;)) {
+        if (schema.path('deletedBy')) {
             doc.deletedBy = deletedBy;
         }
 
@@ -226,3 +219,4 @@
     ]
 </div>
 </div>
+</body></html>

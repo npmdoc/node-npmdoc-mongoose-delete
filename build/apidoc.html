@@ -61,12 +61,162 @@
 
     <li class="apidocModuleLi"><a href="#apidoc.module.mongoose-delete">module mongoose-delete</a><ol>
 
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.mongoose-delete.mongoose-delete">
+            function <span class="apidocSignatureSpan"></span>mongoose-delete
+            <span class="apidocSignatureSpan">(schema, options)</span>
+            </a>
+
+        </li>
+
     </ol></li>
 
 </ol></div>
 
 <div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.mongoose-delete" id="apidoc.module.mongoose-delete">module mongoose-delete</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.mongoose-delete.mongoose-delete" id="apidoc.element.mongoose-delete.mongoose-delete">
+        function <span class="apidocSignatureSpan"></span>mongoose-delete
+        <span class="apidocSignatureSpan">(schema, options)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">mongoose-delete = function (schema, options) {
+    options = options || {};
+    var indexFields = parseIndexFields(options)
+
+    schema.add({
+        deleted: {
+            type: Boolean,
+            default: false,
+            index: indexFields.deleted
+        }
+    });
+
+    if (options.deletedAt === true) {
+        schema.add({ deletedAt: { type: Date, index: indexFields.deletedAt }});
+    }
+
+    if (options.deletedBy === true) {
+        schema.add({ deletedBy: { type: Schema.Types.ObjectId, index: indexFields.deletedBy }});
+    }
+
+    schema.pre(&#x27;save&#x27;, function (next) {
+        if (!this.deleted) {
+            this.deleted = false;
+        }
+        next();
+    });
+
+    if (options.overrideMethods) {
+        var overrideItems = options.overrideMethods;
+        var overridableMethods = [&#x27;count&#x27;, &#x27;find&#x27;, &#x27;findOne&#x27;, &#x27;findOneAndUpdate&#x27;, &#x27;update&#x27;];
+        var finalList = [];
+
+        if ((typeof overrideItems === &#x27;string&#x27; || overrideItems instanceof String) &#x26;&#x26; overrideItems === &#x27;all&#x27;) {
+            finalList = overridableMethods;
+        }
+
+        if (typeof(overrideItems) === &#x22;boolean&#x22; &#x26;&#x26; overrideItems === true) {
+            finalList = overridableMethods;
+        }
+
+        if (Array.isArray(overrideItems)) {
+            overrideItems.forEach(function(method) {
+                if (overridableMethods.indexOf(method) &#x3e; -1) {
+                    finalList.push(method);
+                }
+            });
+        }
+
+        finalList.forEach(function(method) {
+            if (method === &#x27;count&#x27; || method === &#x27;find&#x27; || method === &#x27;findOne&#x27;) {
+                schema.statics[method] = function () {
+                    return Model[method].apply(this, arguments).where(&#x27;deleted&#x27;).ne(true);
+                };
+                schema.statics[method + &#x27;Deleted&#x27;] = function () {
+                    return Model[method].apply(this, arguments).where(&#x27;deleted&#x27;).ne(false);
+                };
+                schema.statics[method + &#x27;WithDeleted&#x27;] = function () {
+                    return Model[method].apply(this, arguments);
+                };
+            } else {
+                schema.statics[method] = function () {
+                    var args = parseUpdateArguments.apply(undefined, arguments);
+
+                    args[0].deleted = {&#x27;$ne&#x27;: true};
+
+                    return Model[method].apply(this, args);
+                };
+
+                schema.statics[method + &#x27;Deleted&#x27;] = function () {
+                    var args = parseUpdateArguments.apply(undefined, arguments);
+
+                    args[0].deleted = {&#x27;$ne&#x27;: false};
+
+                    return Model[method].apply(this, args);
+                };
+
+                schema.statics[method + &#x27;WithDeleted&#x27;] = function () {
+                    return Model[method].apply(this, arguments);
+                };
+            }
+        });
+    }
+
+    schema.methods.delete = function (deletedBy, cb) {
+        var callback = typeof deletedBy === &#x27;function&#x27; ? deletedBy : cb,
+            deletedBy = cb !== undefined ? deletedBy : null;
+
+        this.deleted = true;
+
+        if (schema.path(&#x27;deletedAt&#x27;)) {
+            this.deletedAt = new Date();
+        }
+
+        if (schema.path(&#x27;deletedBy&#x27;)) {
+            this.deletedBy = deletedBy;
+        }
+
+        if (options.validateBeforeDelete === false) {
+            return this.save({ validateBeforeSave: false }, callback);
+        }
+
+        return this.save(callback);
+    };
+
+    schema.statics.delete =  function (conditions, deletedBy, callback) {
+        if (typeof deletedBy === &#x27;function&#x27;) {
+            callback = deletedBy;
+            conditions = conditions;
+            deletedBy = null;
+        } else if (typeof conditions === &#x27;function&#x27;) {
+            callback = conditions;
+            conditions = {};
+            deletedBy = null;
+        }
+
+        var doc = {
+            deleted: true
+        };
+
+        if (schema.path(&#x27;deletedAt&#x27;)) {
+            doc.deletedAt = new Date();
+        }
+
+        if (schema.path(&#x27;deletedBy&#x27;)) {
+            doc.deletedBy = deletedBy;
+        }
+
+        if (this.updateWithDeleted) {
+            return this.updateWithDeleted(c ...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
 
 </div>
 
